@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController {
 
@@ -16,6 +17,10 @@ class ViewController: UIViewController {
 	var timer = NSTimer()
 	var count = 10
 	var tapRecognizer: UITapGestureRecognizer!
+	let beep = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("bip", ofType: "wav")!)
+	let doubleBeep = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("bip2", ofType: "wav")!)
+	let tripleBeep = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("bip3", ofType: "wav")!)
+	var audioPlayer =  AVAudioPlayer()
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -25,8 +30,15 @@ class ViewController: UIViewController {
 		self.initViewWithValue(10, andColor: UIColor.redColor())
 		self.updateLabel()
 	}
-
-	//	timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.firstTimer), userInfo: nil, repeats: true)
+	
+	func playSound(file: NSURL) {
+		do {
+			try audioPlayer = AVAudioPlayer(contentsOfURL: file)
+			try AVAudioSession.sharedInstance().setActive(true)
+			try AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSessionPortOverride.Speaker)
+			audioPlayer.play()
+		} catch {}
+	}
 
 	func updateLabel() {
 		self.timeLabel.text = "\(self.count)"
@@ -43,6 +55,7 @@ class ViewController: UIViewController {
 
 		if (count == 0) {
 			// Play sound
+			playSound(doubleBeep)
 			initViewWithValue(self.timePreference.on ? 240 : 120, andColor: UIColor.greenColor())
 			updateLabel()
 			timer.invalidate()
@@ -53,10 +66,12 @@ class ViewController: UIViewController {
 	func manageTimer() {
 		if (timer.valid) {
 			timer.invalidate()
+			playSound(tripleBeep)
 			initViewWithValue(10, andColor: UIColor.redColor())
 			updateLabel()
 		} else {
 			// Play sound
+			playSound(beep)
 			timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.firstTimer), userInfo: nil, repeats: true)
 		}
 	}
@@ -65,6 +80,7 @@ class ViewController: UIViewController {
 		count -= 1
 		if (count == 0) {
 			// Play sound
+			playSound(tripleBeep)
 			self.view.backgroundColor = UIColor.redColor()
 			timer.invalidate()
 			initViewWithValue(10, andColor: UIColor.redColor())
