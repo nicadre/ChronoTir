@@ -24,6 +24,8 @@ class ViewController: UIViewController {
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		
+		UIApplication.sharedApplication().idleTimerDisabled = true
 
 		self.tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(ViewController.manageTimer))
 		self.view.addGestureRecognizer(tapRecognizer)
@@ -34,10 +36,13 @@ class ViewController: UIViewController {
 	func playSound(file: NSURL) {
 		do {
 			try audioPlayer = AVAudioPlayer(contentsOfURL: file)
+			try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayAndRecord)
 			try AVAudioSession.sharedInstance().setActive(true)
 			try AVAudioSession.sharedInstance().overrideOutputAudioPort(AVAudioSessionPortOverride.Speaker)
 			audioPlayer.play()
-		} catch {}
+		} catch {
+			print(error)
+		}
 	}
 
 	func updateLabel() {
